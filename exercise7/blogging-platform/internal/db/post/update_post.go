@@ -78,32 +78,25 @@ func (p *Post) UpdateInfoPost(ctx context.Context, tx *sql.Tx, id_post int, id_c
 }
 
 func (p *Post) UpdateTags(ctx context.Context, tx *sql.Tx, id_post int, tags []string) ([]*blog.Tag, error) {
-
-	// Шаг 1: Получение текущих тегов для поста
 	currentTags, err := p.getCurrentTags(ctx, tx, id_post)
 	if err != nil {
 		return nil, err
 	}
 
-	// Шаг 2: Обработка новых тегов
 	newTagIDs, err := p.processNewTags(ctx, tx, tags)
 	if err != nil {
 		return nil, err
 	}
-
-	// Шаг 3: Удаление старых тегов, которые больше не привязаны к посту
 	err = p.deleteOldTags(ctx, tx, id_post, currentTags, newTagIDs)
 	if err != nil {
 		return nil, err
 	}
 
-	// Шаг 4: Добавление новых связей тегов с постом
 	err = p.addNewTags(ctx, tx, id_post, newTagIDs)
 	if err != nil {
 		return nil, err
 	}
 
-	// Шаг 5: Получение обновленных теги для поста
 	updatedTags, err := p.getCurrentTags(ctx, tx, id_post)
 	if err != nil {
 		return nil, err
